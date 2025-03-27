@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Papers</title>
+</head>
+<body>
+    <h1>Upload Paper</h1>
+    <form action="/upload" method="POST" enctype="multipart/form-data">
+        <label>Subject:</label>
+        <input type="text" name="subjectname" required>
+        
+        <label>Year:</label>
+        <input type="number" name="pyear" required>
+
+        <label>Semester:</label>
+        <input type="text" name="sem" required>
+
+        <label>Exam Type:</label>
+        <input type="text" name="examtype" required>
+
+        <label>Upload PDF:</label>
+        <input type="file" name="pdf" accept="application/pdf" required>
+        
+        <button type="submit">Upload</button>
+    </form>
+
+    <h2>Uploaded Papers</h2>
+    <ul>
+        <% subjectNameList.forEach(subject => { %>
+            <li><strong><%= subject %></strong></li>
+        <% }) %>
+    </ul>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <%- include('partials/footer') %>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

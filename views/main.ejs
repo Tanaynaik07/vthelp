@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VTI Help</title>
+    <link rel="stylesheet" href="/styles/main.css">
+    <script defer>
+        function toggleView(view) {
+            // Update active view
+            document.getElementById('papersView').classList.remove('active');
+            document.getElementById('notesView').classList.remove('active');
+            document.getElementById(view + 'View').classList.add('active');
+
+            // Update active button
+            document.querySelectorAll('.toggle-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        function getSubjectPapers(subjectName) {
+            fetch('/getSubjectPapers', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ subjectName: subjectName })
+            })
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('papersView').innerHTML = html;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error loading papers. Please try again.');
+            });
+        }
+
+        function getSubjectNotes(subjectName) {
+            fetch('/getSubjectNotes', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ subjectName: subjectName })
+            })
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('notesView').innerHTML = html;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error loading notes. Please try again.');
+            });
+        }
+
+        function togglePaper(header) {
+            const content = header.nextElementSibling;
+            const icon = header.querySelector('.toggle-icon');
+            
+            if (content.style.maxHeight) {
+                content.style.maxHeight = null;
+                icon.textContent = '▼';
+            } else {
+                content.style.maxHeight = content.scrollHeight + "px";
+                icon.textContent = '▲';
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <div class="main-container">
+        <div class="header">
+            <h1>VTI Help</h1>
+        </div>
+
+        <div class="toggle-container">
+            <button class="toggle-btn active" onclick="toggleView('papers')">Papers</button>
+            <button class="toggle-btn" onclick="toggleView('notes')">Notes</button>
+        </div>
+
+        <div id="papersView" class="view active">
+            <div class="folder-container">
+                <% paperSubjects.forEach(function(subject) { %>
+                    <div class="folder" onclick="getSubjectPapers('<%= subject %>')">
+                        <div class="folder-icon">📁</div>
+                        <div class="folder-name"><%= subject %></div>
+                    </div>
+                <% }); %>
+            </div>
+        </div>
+
+        <div id="notesView" class="view">
+            <div class="folder-container">
+                <% noteSubjects.forEach(function(subject) { %>
+                    <div class="folder" onclick="getSubjectNotes('<%= subject %>')">
+                        <div class="folder-icon">📁</div>
+                        <div class="folder-name"><%= subject %></div>
+                    </div>
+                <% }); %>
+            </div>
+        </div>
+    </div>
+    <%- include('partials/footer') %>
+</body>
+
+</html>
