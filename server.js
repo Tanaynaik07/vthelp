@@ -66,7 +66,7 @@ app.use(cors({
 // Session configuration
 app.use(session({
     secret: process.env.SESSION_SECRET,
-    resave: false,
+    resave: true,
     saveUninitialized: false,
     cookie: {
         secure: process.env.NODE_ENV === 'production',
@@ -76,9 +76,7 @@ app.use(session({
         domain: process.env.NODE_ENV === 'production' ? '.onrender.com' : undefined
     },
     name: 'sessionId',
-    proxy: true,
-    rolling: true,
-    store: new session.MemoryStore() // For development. In production, use MongoDB or Redis
+    proxy: true
 }));
 
 // Add trust proxy setting
@@ -133,15 +131,7 @@ passport.use(new LocalStrategy(async (username, password, done) => {
     }
 }));
 
-// Session check middleware
-const checkSession = (req, res, next) => {
-    if (!req.session) {
-        return res.status(500).json({ error: 'Session not available' });
-    }
-    next();
-};
-
-// Authentication middleware with session check
+// Authentication middleware
 const isAuthenticated = (req, res, next) => {
     if (req.isAuthenticated()) {
         return next();
@@ -618,7 +608,7 @@ app.get('/login', (req, res) => {
     });
 });
 
-app.post('/login', loginLimiter, checkSession, passport.authenticate('local', {
+app.post('/login', loginLimiter, passport.authenticate('local', {
     failureRedirect: '/login',
     failureFlash: true
 }), (req, res) => {
