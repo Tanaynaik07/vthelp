@@ -29,24 +29,33 @@ app.use(express.static("public"));
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-    credentials: true
+    origin: process.env.NODE_ENV === 'production' 
+        ? ['https://vthelp.onrender.com', 'https://www.vthelp.onrender.com']
+        : 'http://localhost:3000',
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 // Session configuration
 app.use(session({
-    secret: process.env.SESSION_SECRET || 'your-secret-key',
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
         secure: process.env.NODE_ENV === 'production',
         httpOnly: true,
         maxAge: 24 * 60 * 60 * 1000, // 24 hours
-        sameSite: 'lax'
+        sameSite: 'lax',
+        domain: process.env.NODE_ENV === 'production' ? '.onrender.com' : undefined
     },
     name: 'sessionId',
-    rolling: true
+    rolling: true,
+    proxy: true
 }));
+
+// Add trust proxy setting
+app.set('trust proxy', 1);
 
 // Flash messages configuration
 app.use(flash());
@@ -108,7 +117,7 @@ cloudinary.config({
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET,
     max_file_size: 10 * 1024 * 1024, // 10MB in bytes to match plan limit
-    upload_preset: process.env.CLOUDINARY_UPLOAD_PRESET,
+    upload_preset: process.env.CLOUDINARY_PAPERS_PRESET,
     chunk_size: 6000000, // 6MB chunks for better upload handling
     timeout: 120000, // 2 minutes timeout
     resource_type: "raw",
@@ -521,8 +530,8 @@ app.post("/getSubjectNotes", async (req, res) => {
         const notes = await Note.find({ subjectname: subjectName });
         res.render("notes", { notes, user: req.user });
     } catch (err) {
-        console.error(err);
-        res.status(500).send("Database error");
+            console.error(err);
+            res.status(500).send("Database error");
     }
 });
 
@@ -665,6 +674,14 @@ app.use((req, res, next) => {
 
 // Add cleanup on server startup
 cleanupTempFiles();
+
+// Add this after your session middleware
+app.use((req, res, next) => {
+    console.log('Session ID:', req.sessionID);
+    console.log('Session:', req.session);
+    console.log('Is Authenticated:', req.isAuthenticated());
+    next();
+});
 
 // Start Server
 const PORT = process.env.PORT || 3000;
