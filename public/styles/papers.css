@@ -1,0 +1,84 @@
+.back-btn {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-bottom: 20px;
+    transition: background 0.2s;
+}
+
+.back-btn:hover {
+    background: #5a6268;
+}
+
+.paper {
+    background: white;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.paper-header {
+    cursor: pointer;
+    position: relative;
+    padding-right: 30px;
+}
+
+.paper-header:hover {
+    background-color: #f9f9f9;
+}
+
+.paper-header h2 {
+    color: #333;
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.paper-header p {
+    color: #666;
+    margin: 5px 0;
+}
+
+.toggle-icon {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #4CAF50;
+    font-size: 20px;
+    transition: transform 0.3s ease;
+}
+
+.paper-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+}
+
+.paper-content iframe {
+    margin: 15px 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.paper-content a {
+    color: #4CAF50;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 10px;
+}
+
+.paper-content a:hover {
+    text-decoration: underline;
+}
+
+hr {
+    border: none;
+    border-top: 1px solid #ddd;
+    margin: 30px 0;
+} 

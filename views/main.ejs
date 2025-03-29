@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VTI Help</title>
+    <title>VT Help</title>
     <link rel="stylesheet" href="/styles/main.css">
     <script defer>
         function toggleView(view) {
@@ -74,7 +74,7 @@
 <body>
     <div class="main-container">
         <div class="header">
-            <h1>VTI Help</h1>
+            <h1>VT Help</h1>
         </div>
 
         <div class="toggle-container">
@@ -87,7 +87,7 @@
                 <% paperSubjects.forEach(function(subject) { %>
                     <div class="folder" onclick="getSubjectPapers('<%= subject %>')">
                         <div class="folder-icon">📁</div>
-                        <div class="folder-name"><%= subject %></div>
+                        <div class="folder-name" title="<%= subject %>"><%= subject %></div>
                     </div>
                 <% }); %>
             </div>
@@ -98,7 +98,7 @@
                 <% noteSubjects.forEach(function(subject) { %>
                     <div class="folder" onclick="getSubjectNotes('<%= subject %>')">
                         <div class="folder-icon">📁</div>
-                        <div class="folder-name"><%= subject %></div>
+                        <div class="folder-name" title="<%= subject %>"><%= subject %></div>
                     </div>
                 <% }); %>
             </div>

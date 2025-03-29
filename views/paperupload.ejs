@@ -3,41 +3,162 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload Papers</title>
+    <title>Upload Papers - VT Help</title>
+    <link rel="stylesheet" href="/styles/main.css">
+    <link rel="stylesheet" href="/styles/paperupload.css">
 </head>
 <body>
+    <div class="main-container">
+        <div class="upload-container">
+            <button class="back-btn" onclick="window.location.href='/'">← Back to Subjects</button>
     <h1>Upload Paper</h1>
+            
+            <div class="form-container">
     <form action="/upload" method="POST" enctype="multipart/form-data">
+                    <div class="form-group">
         <label>Subject:</label>
         <input type="text" name="subjectname" required>
+                    </div>
         
+                    <div class="form-group">
         <label>Year:</label>
-        <input type="number" name="pyear" required>
+                        <input type="number" name="pyear" min="2000" max="2100" required>
+                    </div>
 
+                    <div class="form-group">
         <label>Semester:</label>
-        <input type="text" name="sem" required>
+                        <select name="sem" required>
+                            <option value="">Select Semester</option>
+                            <option value="Summer">Summer</option>
+                            <option value="Winter">Winter</option>
+                            <option value="Fall">Fall</option>
+                            <option value="Weekend">Weekend</option>
+                        </select>
+                    </div>
 
+                    <div class="form-group">
         <label>Exam Type:</label>
-        <input type="text" name="examtype" required>
+                        <select name="examtype" required>
+                            <option value="">Select Exam Type</option>
+                            <option value="FAT">FAT</option>
+                            <option value="CAT1">CAT1</option>
+                            <option value="CAT2">CAT2</option>
+                            <option value="MIDTERM">MIDTERM</option>
+                        </select>
+                    </div>
 
-        <label>Upload PDF:</label>
-        <input type="file" name="pdf" accept="application/pdf" required>
-        
-        <button type="submit">Upload</button>
+                    <div class="form-group">
+                        <label>Slot:</label>
+                        <div class="slot-grid">
+                            <div class="slot-section">
+                                <h3>Theory Slots</h3>
+                                <div class="slot-group">
+                                    <div class="slot-row">
+                                        <label><input type="checkbox" name="slot" value="A1"> A1</label>
+                                        <label><input type="checkbox" name="slot" value="A2"> A2</label>
+                                        <label><input type="checkbox" name="slot" value="B1"> B1</label>
+                                        <label><input type="checkbox" name="slot" value="B2"> B2</label>
+                                    </div>
+                                    <div class="slot-row">
+                                        <label><input type="checkbox" name="slot" value="C1"> C1</label>
+                                        <label><input type="checkbox" name="slot" value="C2"> C2</label>
+                                        <label><input type="checkbox" name="slot" value="D1"> D1</label>
+                                        <label><input type="checkbox" name="slot" value="D2"> D2</label>
+                                    </div>
+                                    <div class="slot-row">
+                                        <label><input type="checkbox" name="slot" value="E1"> E1</label>
+                                        <label><input type="checkbox" name="slot" value="E2"> E2</label>
+                                        <label><input type="checkbox" name="slot" value="F1"> F1</label>
+                                        <label><input type="checkbox" name="slot" value="F2"> F2</label>
+                                    </div>
+                                    <div class="slot-row">
+                                        <label><input type="checkbox" name="slot" value="G1"> G1</label>
+                                        <label><input type="checkbox" name="slot" value="G2"> G2</label>
+                                        <label><input type="checkbox" name="slot" value="TA1"> TA1</label>
+                                        <label><input type="checkbox" name="slot" value="TA2"> TA2</label>
+                                    </div>
+                                    <div class="slot-row">
+                                        <label><input type="checkbox" name="slot" value="TB1"> TB1</label>
+                                        <label><input type="checkbox" name="slot" value="TB2"> TB2</label>
+                                        <label><input type="checkbox" name="slot" value="TC1"> TC1</label>
+                                        <label><input type="checkbox" name="slot" value="TC2"> TC2</label>
+                                    </div>
+                                    <div class="slot-row">
+                                        <label><input type="checkbox" name="slot" value="TD1"> TD1</label>
+                                        <label><input type="checkbox" name="slot" value="TD2"> TD2</label>
+                                        <label><input type="checkbox" name="slot" value="TE1"> TE1</label>
+                                        <label><input type="checkbox" name="slot" value="TE2"> TE2</label>
+                                    </div>
+                                    <div class="slot-row">
+                                        <label><input type="checkbox" name="slot" value="TF1"> TF1</label>
+                                        <label><input type="checkbox" name="slot" value="TF2"> TF2</label>
+                                        <label><input type="checkbox" name="slot" value="TG1"> TG1</label>
+                                        <label><input type="checkbox" name="slot" value="TG2"> TG2</label>
+                                    </div>
+                                    <div class="slot-row">
+                                        <label><input type="checkbox" name="slot" value="TAA1"> TAA1</label>
+                                        <label><input type="checkbox" name="slot" value="TAA2"> TAA2</label>
+                                        <label><input type="checkbox" name="slot" value="TCC1"> TCC1</label>
+                                        <label><input type="checkbox" name="slot" value="TCC2"> TCC2</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="slot-section">
+                                <h3>Weekend Slots</h3>
+                                <div class="slot-group">
+                                    <div class="slot-row">
+                                        <label><input type="checkbox" name="slot" value="X11"> X11</label>
+                                        <label><input type="checkbox" name="slot" value="X12"> X12</label>
+                                        <label><input type="checkbox" name="slot" value="X21"> X21</label>
+                                        <label><input type="checkbox" name="slot" value="Y11"> Y11</label>
+                                        <label><input type="checkbox" name="slot" value="Y12"> Y12</label>
+                                    </div>
+                                    <div class="slot-row">
+                                        <label><input type="checkbox" name="slot" value="Y21"> Y21</label>
+                                        <label><input type="checkbox" name="slot" value="Z21"> Z21</label>
+                                        <label><input type="checkbox" name="slot" value="W21"> W21</label>
+                                        <label><input type="checkbox" name="slot" value="W22"> W22</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="slot-section">
+                                <h3>Virtual Slots</h3>
+                                <div class="slot-group">
+                                    <div class="slot-row">
+                                        <label><input type="checkbox" name="slot" value="V1"> V1</label>
+                                        <label><input type="checkbox" name="slot" value="V2"> V2</label>
+                                        <label><input type="checkbox" name="slot" value="V8"> V8</label>
+                                        <label><input type="checkbox" name="slot" value="V10"> V10</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <small class="form-text text-muted">Select one or more slots</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>PDF File:</label>
+                        <input type="file" name="pdf" accept=".pdf" required>
+                    </div>
+
+                    <button type="submit" class="submit-btn">Upload Paper</button>
     </form>
+            </div>
 
-    <h2>Uploaded Papers</h2>
+            <div class="subjects-list">
+                <h2>Available Subjects</h2>
     <ul>
         <% subjectNameList.forEach(subject => { %>
             <li><strong><%= subject %></strong></li>
         <% }) %>
     </ul>
-    <div class="container">
-        <div class="row">
-            <div class="col-md-12">
-                <%- include('partials/footer') %>
             </div>
         </div>
     </div>
+    <%- include('partials/footer') %>
+
+    <script src="/js/paperupload.js"></script>
 </body>
 </html>

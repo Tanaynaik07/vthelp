@@ -3,49 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Papers</title>
+    <title>Papers - VT Help</title>
     <link rel="stylesheet" href="/styles/main.css">
+    <link rel="stylesheet" href="/styles/papers.css">
 </head>
 <body>
-    <h1>Available Papers</h1>
+    <div class="main-container">
+        <button class="back-btn" onclick="window.location.href='/'">← Back to Subjects</button>
+        <h1>Papers</h1>
 
-    <% if (papers.length === 0) { %>
-        <p>No papers found for this subject.</p>
-    <% } else { %>
-        <% papers.forEach(paper => { %>
-            <div class="paper">
-                <div class="paper-header" onclick="togglePaper(this)">
-                    <h2><%= paper.subjectname %> - <%= paper.pyear %> (<%= paper.sem %>)</h2>
-                    <p>Exam Type: <%= paper.examtype %></p>
-                    <span class="toggle-icon">▼</span>
+        <% if (papers.length === 0) { %>
+            <p>No papers found for this subject.</p>
+        <% } else { %>
+            <% papers.forEach(paper => { %>
+                <div class="paper">
+                    <div class="paper-header" onclick="togglePaper(this)">
+                        <h2><%= paper.subjectname %> - <%= paper.pyear %> (<%= paper.sem %>)</h2>
+                        <p>Exam Type: <%= paper.examtype %></p>
+                        <p>Slots: <%= paper.slots.join('+') %></p>
+                        <span class="toggle-icon">▼</span>
+                       
+                    </div>
+                    <div class="paper-content">
+                        
+                        <iframe src="<%= paper.plink %>" width="100%" height="600px"></iframe>
+                      
+
+                       
+                        <p><a href="<%= paper.plink %>" target="_blank">View Full PDF</a></p>
+                    </div>
                 </div>
-                <div class="paper-content">
-                    <!-- Open PDF inside the page -->
-                    <iframe src="<%= paper.plink %>" width="100%" height="600px"></iframe>
-                    <!-- <embed src="CLOUDINARY_PDF_LINK" type="application/pdf" width="100%" height="600px" /> -->
+                <hr>
+            <% }); %>
+        <% } %>
+    </div>
 
-                    <!-- Open PDF in a new tab -->
-                    <p><a href="<%= paper.plink %>" target="_blank">View Full PDF</a></p>
-                </div>
-            </div>
-            <hr>
-        <% }); %>
-    <% } %>
-
-    <script>
-        function togglePaper(header) {
-            const content = header.nextElementSibling;
-            const icon = header.querySelector('.toggle-icon');
-            
-            if (content.style.maxHeight) {
-                content.style.maxHeight = null;
-                icon.textContent = '▼';
-            } else {
-                content.style.maxHeight = content.scrollHeight + "px";
-                icon.textContent = '▲';
-            }
-        }
-    </script>
-    <!-- <%- include('partials/footer') %> -->
+    <script src="/js/papers.js" defer></script>
 </body>
 </html>

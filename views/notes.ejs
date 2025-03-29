@@ -3,49 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notes</title>
+    <title>Notes - VT Help</title>
     <link rel="stylesheet" href="/styles/main.css">
+    <link rel="stylesheet" href="/styles/notes.css">
 </head>
 <body>
-    <h1>Available Notes</h1>
+    <div class="main-container">
+        <button class="back-btn" onclick="window.location.href='/'">← Back to Subjects</button>
+        <h1>Notes</h1>
 
-    <% if (notes.length === 0) { %>
-        <p>No notes found for this subject.</p>
-    <% } else { %>
-        <% notes.forEach(note => { %>
-            <div class="paper">
-                <div class="paper-header" onclick="togglePaper(this)">
-                    <h2><%= note.subjectname %> - <%= note.topic %></h2>
-                    <p>Description: <%= note.description %></p>
-                    <p>Uploaded: <%= new Date(note.created_at).toLocaleDateString() %></p>
-                    <span class="toggle-icon">▼</span>
+        <% if (notes.length === 0) { %>
+            <p>No notes found for this subject.</p>
+        <% } else { %>
+            <% notes.forEach(note => { %>
+                <div class="paper">
+                    <div class="paper-header" onclick="togglePaper(this)">
+                        <h2><%= note.subjectname %> - <%= note.topic %></h2>
+                     
+                        <p>Uploaded: <%= new Date(note.created_at).toLocaleDateString() %></p>
+                        <span class="toggle-icon">▼</span>
+                        
+                    </div>
+                    <div class="paper-content">
+                        <div class="note-content">
+                            <% if (note.isParts) { %>
+                                <% const parts = note.nlink.split(','); %>
+                                <div class="parts-container">
+                                    <% parts.forEach((part, index) => { %>
+                                        <div class="part">
+                                            <h4>Part <%= index + 1 %> of <%= note.totalParts %></h4>
+                                            <iframe src="<%= part %>" width="100%" height="600px"></iframe>
+                                            <p><a href="<%= part %>" target="_blank">View Part <%= index + 1 %> in Full Screen</a></p>
+                                        </div>
+                                    <% }); %>
+                                </div>
+                            <% } else { %>
+                                <!-- Existing single file display code -->
+                                <iframe src="<%= note.nlink %>" width="100%" height="600px"></iframe>
+                                <p><a href="<%= note.nlink %>" target="_blank">View Full PDF</a></p>
+                            <% } %>
+                        </div>
+                    </div>
                 </div>
-                <div class="paper-content">
-                    <!-- Open PDF inside the page -->
-                    <iframe src="<%= note.nlink %>" width="100%" height="600px"></iframe>
+                <hr>
+            <% }); %>
+        <% } %>
+    </div>
 
-                    <!-- Open PDF in a new tab -->
-                    <p><a href="<%= note.nlink %>" target="_blank">View Full PDF</a></p>
-                </div>
-            </div>
-            <hr>
-        <% }); %>
-    <% } %>
-
-    <script>
-        function togglePaper(header) {
-            const content = header.nextElementSibling;
-            const icon = header.querySelector('.toggle-icon');
-            
-            if (content.style.maxHeight) {
-                content.style.maxHeight = null;
-                icon.textContent = '▼';
-            } else {
-                content.style.maxHeight = content.scrollHeight + "px";
-                icon.textContent = '▲';
-            }
-        }
-    </script>
-    <!-- <%- include('partials/footer') %> -->
+    <script src="/js/notes.js" defer></script>
 </body>
 </html> 

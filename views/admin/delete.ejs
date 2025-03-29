@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Content - Admin</title>
+    <link rel="stylesheet" href="/styles/main.css">
+    <link rel="stylesheet" href="/styles/admin.css">
+</head>
+<body>
+    <div class="main-container">
+        <button class="back-btn" onclick="window.location.href='/admin/manage'">← Back to Admin Panel</button>
+        <h1>Delete Content</h1>
+
+        <div class="delete-form-container">
+            <div class="form-section">
+                <h2>Delete Paper</h2>
+                <form id="deletePaperForm" class="delete-form">
+                    <div class="form-group">
+                        <label for="paperId">Paper ID:</label>
+                        <input type="number" id="paperId" name="pid" required>
+                    </div>
+                    <button type="submit" class="delete-btn">Delete Paper</button>
+                </form>
+            </div>
+
+            <div class="form-section">
+                <h2>Delete Note</h2>
+                <form id="deleteNoteForm" class="delete-form">
+                    <div class="form-group">
+                        <label for="noteId">Note ID:</label>
+                        <input type="number" id="noteId" name="nid" required>
+                    </div>
+                    <button type="submit" class="delete-btn">Delete Note</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/admin/delete.js"></script>
+</body>
+</html> 

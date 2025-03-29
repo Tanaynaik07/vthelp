@@ -4,12 +4,14 @@ const cors = require("cors");
 const multer = require("multer");
 const cloudinary = require("cloudinary").v2;
 const fs = require("fs");
+const { PDFDocument } = require('pdf-lib');
 const session = require("express-session");
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const flash = require("connect-flash");
 const User = require("./models/User");
 const rateLimit = require('express-rate-limit');
+const path = require('path');
 require("dotenv").config();
 
 const app = express();
@@ -105,6 +107,12 @@ cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET,
+    max_file_size: 10 * 1024 * 1024, // 10MB in bytes to match plan limit
+    upload_preset: process.env.CLOUDINARY_UPLOAD_PRESET,
+    chunk_size: 6000000, // 6MB chunks for better upload handling
+    timeout: 120000, // 2 minutes timeout
+    resource_type: "raw",
+    type: "upload"
 });
 
 // MongoDB Schemas
@@ -114,6 +122,7 @@ const PaperSchema = new mongoose.Schema({
     pyear: Number,
     sem: String,
     examtype: String,
+    slots: [String],
     plink: String
 });
 
@@ -123,7 +132,9 @@ const NoteSchema = new mongoose.Schema({
     topic: String,
     description: String,
     nlink: String,
-    created_at: { type: Date, default: Date.now }
+    created_at: { type: Date, default: Date.now },
+    isParts: Boolean,
+    totalParts: Number
 });
 
 const Paper = mongoose.model('Paper', PaperSchema);
@@ -160,7 +171,7 @@ const validatePassword = (password) => {
 // File upload security
 const storage = multer.memoryStorage();
 
-const upload = multer({
+const paperUpload = multer({
     storage: storage,
     fileFilter: (req, file, cb) => {
         // Check file type
@@ -173,9 +184,8 @@ const upload = multer({
             return cb(new Error("File size too large. Maximum size is 10MB"), false);
         }
         
-        // Sanitize filename
-        const sanitizedFilename = file.originalname.replace(/[^a-zA-Z0-9-_. ]/g, '');
-        if (sanitizedFilename !== file.originalname) {
+        // Basic filename validation
+        if (!file.originalname || file.originalname.length > 255) {
             return cb(new Error("Invalid filename"), false);
         }
         
@@ -183,6 +193,32 @@ const upload = multer({
     },
     limits: {
         fileSize: 10 * 1024 * 1024, // 10MB limit
+        files: 1 // Only allow one file per upload
+    }
+});
+
+const noteUpload = multer({
+    storage: storage,
+    fileFilter: (req, file, cb) => {
+        // Check file type
+        if (file.mimetype !== "application/pdf") {
+            return cb(new Error("Only PDF files are allowed"), false);
+        }
+        
+        // Check file size (max 50MB for initial upload)
+        if (file.size > 50 * 1024 * 1024) {
+            return cb(new Error("File size too large. Maximum size is 50MB"), false);
+        }
+        
+        // Basic filename validation
+        if (!file.originalname || file.originalname.length > 255) {
+            return cb(new Error("Invalid filename"), false);
+        }
+        
+        cb(null, true);
+    },
+    limits: {
+        fileSize: 50 * 1024 * 1024, // 50MB limit for initial upload
         files: 1 // Only allow one file per upload
     }
 });
@@ -234,7 +270,7 @@ app.get("/uploadPaper", isAuthenticated, async (req, res) => {
     }
 });
 
-app.post("/upload", isAuthenticated, upload.single("pdf"), async (req, res) => {
+app.post("/upload", isAuthenticated, paperUpload.single("pdf"), async (req, res) => {
     if (!req.file) {
         return res.status(400).json({ error: "No file uploaded" });
     }
@@ -252,7 +288,8 @@ app.post("/upload", isAuthenticated, upload.single("pdf"), async (req, res) => {
             ).end(req.file.buffer);
         });
 
-        const { subjectname, pyear, sem, examtype } = req.body;
+        const { subjectname, pyear, sem, examtype, slot } = req.body;
+        const slots = Array.isArray(slot) ? slot : [slot];
         const plink = result.secure_url;
 
         const lastPaper = await Paper.findOne().sort({ pid: -1 });
@@ -264,6 +301,7 @@ app.post("/upload", isAuthenticated, upload.single("pdf"), async (req, res) => {
             pyear,
             sem,
             examtype,
+            slots,
             plink
         });
 
@@ -288,13 +326,16 @@ app.post("/getSubjectPapers", async (req, res) => {
 
 app.post("/deletePaper/:id", isAuthenticated, async (req, res) => {
     const { id } = req.params;
-
     try {
+        // 1. Find the paper by pid
         const paper = await Paper.findOne({ pid: parseInt(id) });
         if (!paper) return res.status(404).json({ error: "Paper not found" });
 
+        // 2. Get the public ID from the Cloudinary URL
         const publicId = paper.plink.split("/").pop().split(".")[0];
+        // 3. Delete from Cloudinary (from 'papers' folder)
         await cloudinary.uploader.destroy(`papers/${publicId}`, { resource_type: "raw" });
+        // 4. Delete from MongoDB
         await Paper.deleteOne({ pid: parseInt(id) });
 
         res.json({ message: "Paper deleted successfully" });
@@ -312,40 +353,162 @@ app.get("/uploadNote", isAuthenticated, async (req, res) => {
     }
 });
 
-app.post("/uploadNote", isAuthenticated, upload.single("pdf"), async (req, res) => {
+// Add this function to split PDF
+async function splitPDF(buffer, pagesPerPart = 10) {
+    try {
+        // Load the PDF document
+        const pdfDoc = await PDFDocument.load(buffer);
+        const totalPages = pdfDoc.getPageCount();
+        const parts = [];
+        
+        // Split into parts of specified pages
+        for (let i = 0; i < totalPages; i += pagesPerPart) {
+            const partDoc = await PDFDocument.create();
+            const pageCount = Math.min(pagesPerPart, totalPages - i);
+            
+            // Copy pages to new document
+            const copiedPages = await partDoc.copyPages(pdfDoc, Array.from(
+                { length: pageCount },
+                (_, index) => i + index
+            ));
+            
+            copiedPages.forEach(page => partDoc.addPage(page));
+            
+            // Save the part
+            const partBuffer = await partDoc.save();
+            parts.push(partBuffer);
+        }
+        
+        return parts;
+    } catch (error) {
+        console.error('Error splitting PDF:', error);
+        throw error;
+    }
+}
+
+// Add this function near the top with other utility functions
+function cleanupTempFiles() {
+    const tempDir = path.join(__dirname, 'temp');
+    if (fs.existsSync(tempDir)) {
+        fs.readdir(tempDir, (err, files) => {
+            if (err) {
+                console.error('Error reading temp directory:', err);
+                return;
+            }
+            
+            files.forEach(file => {
+                const filePath = path.join(tempDir, file);
+                fs.unlink(filePath, err => {
+                    if (err) {
+                        console.error('Error deleting temp file:', err);
+                    }
+                });
+            });
+        });
+    }
+}
+
+// Update the note upload route
+app.post("/uploadNote", isAuthenticated, noteUpload.single("pdf"), async (req, res) => {
     if (!req.file) {
         return res.status(400).json({ error: "No file uploaded" });
     }
 
     try {
-        console.log("Uploading note to Cloudinary from buffer");
+        const fileSize = req.file.size;
+        const MAX_SINGLE_UPLOAD = 10 * 1024 * 1024; // 10MB
+        
+        if (fileSize <= MAX_SINGLE_UPLOAD) {
+            // Handle normal upload for small files
+            console.log("Uploading note to Cloudinary from buffer");
 
-        const result = await new Promise((resolve, reject) => {
-            cloudinary.uploader.upload_stream(
-                { resource_type: "raw", folder: "notes", format: "pdf", type: "upload", attachment: false },
-                (error, uploadResult) => {
-                    if (error) return reject(error);
-                    resolve(uploadResult);
+            const tempFilePath = `temp_${Date.now()}.pdf`;
+            fs.writeFileSync(tempFilePath, req.file.buffer);
+
+            const result = await cloudinary.uploader.upload(tempFilePath, {
+                resource_type: "raw",
+                folder: "notes",
+                format: "pdf",
+                type: "upload",
+                attachment: false,
+                chunk_size: 6000000,
+                timeout: 120000,
+                upload_preset: process.env.CLOUDINARY_UPLOAD_PRESET
+            });
+
+            fs.unlinkSync(tempFilePath);
+
+            const { subjectname, topic, description } = req.body;
+            const nlink = result.secure_url;
+
+            const lastNote = await Note.findOne().sort({ nid: -1 });
+            const newNid = lastNote ? lastNote.nid + 1 : 1;
+
+            const note = new Note({
+                nid: newNid,
+                subjectname,
+                topic,
+                description,
+                nlink
+            });
+
+            await note.save();
+            res.json({ message: "Note uploaded successfully", cloudinary_url: nlink });
+        } else {
+            // Split and upload large files
+            console.log("Splitting large PDF into parts");
+            const parts = await splitPDF(req.file.buffer);
+            const uploadResults = [];
+            
+            for (let i = 0; i < parts.length; i++) {
+                const partFileName = `${req.file.originalname.replace('.pdf', '')}_part${i + 1}of${parts.length}.pdf`;
+                const tempFilePath = `temp_${Date.now()}_${partFileName}`;
+                
+                try {
+                    fs.writeFileSync(tempFilePath, parts[i]);
+                    
+                    const result = await cloudinary.uploader.upload(tempFilePath, {
+                        resource_type: "raw",
+                        folder: "notes",
+                        format: "pdf",
+                        type: "upload",
+                        attachment: false,
+                        chunk_size: 6000000,
+                        timeout: 120000,
+                        upload_preset: process.env.CLOUDINARY_UPLOAD_PRESET
+                    });
+                    
+                    uploadResults.push(result.secure_url);
+                    fs.unlinkSync(tempFilePath);
+                } catch (error) {
+                    if (fs.existsSync(tempFilePath)) {
+                        fs.unlinkSync(tempFilePath);
+                    }
+                    throw error;
                 }
-            ).end(req.file.buffer);
-        });
-
-        const { subjectname, topic, description } = req.body;
-        const nlink = result.secure_url;
-
-        const lastNote = await Note.findOne().sort({ nid: -1 });
-        const newNid = lastNote ? lastNote.nid + 1 : 1;
-
-        const note = new Note({
-            nid: newNid,
-            subjectname,
-            topic,
-            description,
-            nlink
-        });
-
-        await note.save();
-        res.json({ message: "Note uploaded successfully", cloudinary_url: nlink });
+            }
+            
+            const { subjectname, topic, description } = req.body;
+            const lastNote = await Note.findOne().sort({ nid: -1 });
+            const newNid = lastNote ? lastNote.nid + 1 : 1;
+            
+            const note = new Note({
+                nid: newNid,
+                subjectname,
+                topic,
+                description,
+                nlink: uploadResults.join(','),
+                isParts: true,
+                totalParts: parts.length
+            });
+            
+            await note.save();
+            res.json({ 
+                message: "Note uploaded successfully in parts", 
+                parts: uploadResults,
+                noteId: newNid
+            });
+        }
     } catch (error) {
         console.error("Upload failed:", error);
         res.status(500).json({ error: "Upload failed", details: error });
@@ -365,24 +528,40 @@ app.post("/getSubjectNotes", async (req, res) => {
 
 app.post("/deleteNote/:id", isAuthenticated, async (req, res) => {
     const { id } = req.params;
-
     try {
+        // 1. Find the note by nid
         const note = await Note.findOne({ nid: parseInt(id) });
         if (!note) return res.status(404).json({ error: "Note not found" });
 
-        const publicId = note.nlink.split("/").pop().split(".")[0];
-        await cloudinary.uploader.destroy(`notes/${publicId}`, { resource_type: "raw" });
-        await Note.deleteOne({ nid: parseInt(id) });
+        // 2. Handle split files
+        if (note.isParts) {
+            // If note is split into parts, delete each part
+            const links = note.nlink.split(',');
+            for (const link of links) {
+                const publicId = link.split("/").pop().split(".")[0];
+                await cloudinary.uploader.destroy(`notes/${publicId}`, { resource_type: "raw" });
+            }
+        } else {
+            // If single file, delete it
+            const publicId = note.nlink.split("/").pop().split(".")[0];
+            await cloudinary.uploader.destroy(`notes/${publicId}`, { resource_type: "raw" });
+        }
 
+        // 3. Delete from MongoDB
+        await Note.deleteOne({ nid: parseInt(id) });
         res.json({ message: "Note deleted successfully" });
     } catch (error) {
+        console.error("Deletion failed:", error);
         res.status(500).json({ error: "Deletion failed", details: error });
     }
 });
 
 // Authentication Routes
 app.get('/login', (req, res) => {
-    res.render('login', { error: req.flash('error') });
+    res.render('login', { 
+        error: req.flash('error'),
+        user: req.user
+    });
 });
 
 app.post('/login', loginLimiter, passport.authenticate('local', {
@@ -409,7 +588,12 @@ const isAdmin = (req, res, next) => {
 app.get('/admin/manage', isAdmin, async (req, res) => {
     try {
         const users = await User.find({}, 'username role createdAt');
-        res.render('admin/manage', { users });
+        res.render('admin/manage', { 
+            users,
+            currentUser: req.user,
+            error: req.flash('error'),
+            success: req.flash('success')
+        });
     } catch (err) {
         res.status(500).json({ error: 'Error fetching users' });
     }
@@ -463,6 +647,24 @@ app.post('/admin/delete/:id', isAdmin, async (req, res) => {
         res.status(500).json({ error: 'Error deleting user' });
     }
 });
+
+// Admin routes
+app.get("/admin/manage", isAuthenticated, isAdmin, async (req, res) => {
+    res.render("admin/manage", { user: req.user });
+});
+
+app.get("/admin/delete", isAuthenticated, isAdmin, async (req, res) => {
+    res.render("admin/delete", { user: req.user });
+});
+
+// Make user available to all views
+app.use((req, res, next) => {
+    res.locals.user = req.user;
+    next();
+});
+
+// Add cleanup on server startup
+cleanupTempFiles();
 
 // Start Server
 const PORT = process.env.PORT || 3000;
