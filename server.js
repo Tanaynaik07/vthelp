@@ -40,17 +40,16 @@ app.use(cors({
 // Session configuration
 app.use(session({
     secret: process.env.SESSION_SECRET,
-    resave: false,
+    resave: true,
     saveUninitialized: false,
     cookie: {
         secure: process.env.NODE_ENV === 'production',
         httpOnly: true,
-        maxAge: 24 * 60 * 60 * 1000, // 24 hours
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         sameSite: 'lax',
         domain: process.env.NODE_ENV === 'production' ? '.onrender.com' : undefined
     },
     name: 'sessionId',
-    rolling: true,
     proxy: true
 }));
 
