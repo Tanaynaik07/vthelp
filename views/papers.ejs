@@ -6,6 +6,7 @@
     <title>Papers - VT Help</title>
     <link rel="stylesheet" href="/styles/main.css">
     <link rel="stylesheet" href="/styles/papers.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <div class="main-container">
@@ -15,29 +16,25 @@
         <% if (papers.length === 0) { %>
             <p>No papers found for this subject.</p>
         <% } else { %>
-            <% papers.forEach(paper => { %>
-                <div class="paper">
-                    <div class="paper-header" onclick="togglePaper(this)">
-                        <h2><%= paper.subjectname %> - <%= paper.pyear %> (<%= paper.sem %>)</h2>
-                        <p>Exam Type: <%= paper.examtype %></p>
-                        <p>Slots: <%= paper.slots.join('+') %></p>
-                        <span class="toggle-icon">▼</span>
-                       
+            <div class="folder-grid">
+                <% papers.forEach(paper => { %>
+                    <div class="folder-item">
+                        <div class="folder-icon">
+                            <i class="fas fa-folder"></i>
+                        </div>
+                        <div class="folder-content">
+                            <h3><%= paper.subjectname %></h3>
+                            <p class="year-sem"><%= paper.pyear %> (<%= paper.sem %>)</p>
+                            <p class="exam-type">Exam Type: <%= paper.examtype %></p>
+                            <p class="slots">Slots: <%= paper.slots.join('+') %></p>
+                            <a href="<%= paper.plink %>" target="_blank" class="view-link">
+                                <i class="fas fa-file-pdf"></i> View PDF
+                            </a>
+                        </div>
                     </div>
-                    <div class="paper-content">
-                        
-                        <iframe src="<%= paper.plink %>" width="100%" height="600px"></iframe>
-                      
-
-                       
-                        <p><a href="<%= paper.plink %>" target="_blank">View Full PDF</a></p>
-                    </div>
-                </div>
-                <hr>
-            <% }); %>
+                <% }); %>
+            </div>
         <% } %>
     </div>
-
-    <script src="/js/papers.js" defer></script>
 </body>
 </html>

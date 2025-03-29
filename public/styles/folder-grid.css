@@ -1,0 +1,167 @@
+.folder-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+    padding: 16px 0;
+}
+
+.folder-item {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.folder-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.folder-icon {
+    background: #f8f9fa;
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.folder-icon i {
+    font-size: 32px;
+    color: #4CAF50;
+}
+
+.folder-content {
+    padding: 12px;
+    flex-grow: 1;
+}
+
+.folder-content h3 {
+    margin: 0 0 8px 0;
+    color: #333;
+    font-size: 1rem;
+}
+
+.folder-content p {
+    margin: 3px 0;
+    color: #666;
+    font-size: 0.85em;
+}
+
+.folder-content .topic {
+    color: #4CAF50;
+    font-weight: 500;
+}
+
+.folder-content .year-sem {
+    color: #2196F3;
+    font-weight: 500;
+}
+
+.folder-content .exam-type {
+    color: #FF9800;
+}
+
+.folder-content .slots {
+    color: #9C27B0;
+}
+
+.parts-list {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.part-link, .view-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    background: #f8f9fa;
+    border-radius: 4px;
+    color: #4CAF50;
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+    font-size: 0.85em;
+}
+
+.part-link:hover, .view-link:hover {
+    background: #e9ecef;
+    color: #45a049;
+}
+
+.part-link i, .view-link i {
+    font-size: 14px;
+}
+
+@media (max-width: 768px) {
+    .folder-grid {
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        padding: 12px;
+        gap: 12px;
+    }
+    
+    .folder-item {
+        margin-bottom: 0;
+    }
+
+    .folder-icon {
+        padding: 10px;
+    }
+
+    .folder-icon i {
+        font-size: 28px;
+    }
+
+    .folder-content {
+        padding: 10px;
+    }
+
+    .folder-content h3 {
+        font-size: 0.95rem;
+    }
+
+    .folder-content p {
+        font-size: 0.8em;
+    }
+
+    .part-link, .view-link {
+        padding: 5px 8px;
+        font-size: 0.8em;
+    }
+}
+
+@media (max-width: 480px) {
+    .folder-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        padding: 8px;
+        gap: 8px;
+    }
+
+    .folder-icon {
+        padding: 8px;
+    }
+
+    .folder-icon i {
+        font-size: 24px;
+    }
+
+    .folder-content {
+        padding: 8px;
+    }
+
+    .folder-content h3 {
+        font-size: 0.9rem;
+    }
+
+    .folder-content p {
+        font-size: 0.75em;
+    }
+
+    .part-link, .view-link {
+        padding: 4px 6px;
+        font-size: 0.75em;
+    }
+} 

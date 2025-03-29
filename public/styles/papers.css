@@ -1,3 +1,5 @@
+@import 'folder-grid.css';
+
 .back-btn {
     background: #6c757d;
     color: white;
@@ -12,6 +14,52 @@
 
 .back-btn:hover {
     background: #5a6268;
+}
+
+h1 {
+    color: #333;
+    margin-bottom: 30px;
+    text-align: center;
+    font-size: 2rem;
+}
+
+@media (max-width: 768px) {
+    h1 {
+        font-size: 1.75rem;
+        margin-bottom: 20px;
+    }
+
+    .back-btn {
+        padding: 6px 12px;
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 1.5rem;
+        margin-bottom: 15px;
+    }
+
+    .back-btn {
+        padding: 5px 10px;
+        font-size: 12px;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    h1 {
+        color: #f3f4f6;
+    }
+
+    .back-btn {
+        background: #4b5563;
+    }
+
+    .back-btn:hover {
+        background: #374151;
+    }
 }
 
 .paper {

@@ -5,14 +5,16 @@ body {
     background-color: #f5f7fa;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     min-height: 100vh;
+    background: #111827;
 }
 
 /* Main container */
 .main-container {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
-    padding: 40px 20px;
-    min-height: 100vh;
+    padding: 20px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 /* Navigation buttons */
@@ -49,194 +51,106 @@ body {
     display: flex;
     justify-content: center;
     gap: 20px;
-    margin-bottom: 40px;
-    background: white;
-    padding: 10px;
-    border-radius: 12px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    width: fit-content;
-    margin-left: auto;
-    margin-right: auto;
+    margin-bottom: 30px;
 }
 
 .toggle-btn {
-    padding: 12px 30px;
-    font-size: 16px;
-    font-weight: 600;
+    padding: 10px 20px;
     border: none;
-    background: none;
-    color: #666;
-    border-radius: 8px;
+    border-radius: 6px;
+    background: #f8f9fa;
+    color: #333;
     cursor: pointer;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
+    font-size: 1rem;
+    transition: all 0.2s ease;
 }
 
 .toggle-btn.active {
     background: #4CAF50;
     color: white;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.toggle-btn:hover:not(.active) {
-    background: #f0f0f0;
-    color: #333;
 }
 
 /* Folder container */
 .folder-container {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 24px;
-    padding: 20px;
-    background: white;
-    border-radius: 16px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+    padding: 20px 0;
 }
 
 /* Individual folder styles */
 .folder {
     background: white;
+    border-radius: 8px;
     padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    transition: all 0.3s ease;
-    border: 1px solid #eee;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
 .folder:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-    border-color: #4CAF50;
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
-.folder img {
-    width: 64px;
-    height: 64px;
-    margin-bottom: 12px;
-    transition: transform 0.3s ease;
+.folder-icon {
+    font-size: 32px;
+    margin-bottom: 10px;
+    color: #4CAF50;
 }
 
-.folder:hover img {
-    transform: scale(1.1);
-}
-
-.folder h1 {
-    font-size: 16px;
+.folder-name {
+    font-size: 1rem;
     color: #333;
     margin: 0;
-    font-weight: 600;
-    line-height: 1.4;
-    word-break: break-word;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .main-container {
-        padding: 20px 10px;
-    }
-
-    .nav-buttons {
-        flex-direction: column;
-        gap: 12px;
-    }
-
-    .nav-btn {
-        width: 100%;
-        justify-content: center;
-    }
-
-    .toggle-container {
-        flex-direction: column;
-        width: 100%;
-    }
-
-    .toggle-btn {
-        width: 100%;
-    }
-
-    .folder-container {
-        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-        gap: 16px;
-        padding: 16px;
-    }
-
-    .folder {
-        padding: 16px;
-    }
-
-    .folder img {
-        width: 48px;
-        height: 48px;
-    }
-
-    .folder h1 {
-        font-size: 14px;
-    }
-}
-
-/* Notes specific styles */
-.upload-container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
+/* Form Styles */
 .form-group {
     margin-bottom: 20px;
 }
 
 .form-group label {
     display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
+    margin-bottom: 8px;
+    color: #333;
+    font-weight: 500;
 }
 
-.form-group input[type="text"],
-.form-group textarea {
+.form-group input,
+.form-group textarea,
+.form-group select {
     width: 100%;
-    padding: 8px;
+    padding: 8px 12px;
     border: 1px solid #ddd;
     border-radius: 4px;
+    font-size: 1rem;
+    box-sizing: border-box;
 }
 
+.form-group textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+/* Button Styles */
 .submit-btn {
-    background-color: #4CAF50;
+    background: #4CAF50;
     color: white;
     padding: 10px 20px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 1rem;
+    transition: background 0.2s ease;
 }
 
 .submit-btn:hover {
-    background-color: #45a049;
-}
-
-.subjects-list {
-    margin-top: 40px;
-    padding-top: 20px;
-    border-top: 1px solid #ddd;
-}
-
-.note-card {
-    display: none;
-}
-
-.view-link {
-    display: inline-block;
-    margin-top: 10px;
-    color: #4CAF50;
-    text-decoration: none;
-}
-
-.view-link:hover {
-    text-decoration: underline;
+    background: #45a049;
 }
 
 /* Folder groups */
@@ -356,41 +270,10 @@ hr {
     margin-bottom: 1.5rem;
 }
 
-.form-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-    color: #333;
-}
-
-.form-group input {
-    width: 100%;
-    padding: 0.75rem;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 1rem;
-}
-
 .form-group input:focus {
     outline: none;
     border-color: #4a90e2;
     box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
-}
-
-.submit-btn {
-    width: 100%;
-    padding: 0.75rem;
-    background: #4a90e2;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-
-.submit-btn:hover {
-    background: #357abd;
 }
 
 .error-message {
@@ -434,19 +317,15 @@ hr {
 
 /* Header Styles */
 .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-    padding: 1rem;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    margin-bottom: 30px;
 }
 
 .header h1 {
-    margin: 0;
     color: #333;
+    font-size: 2.5rem;
+    margin: 0;
+    padding: 20px 0;
 }
 
 .user-controls {
@@ -495,42 +374,6 @@ hr {
     display: block;
 }
 
-.folder-name{
-    overflow: hidden;
-}
-
-/* Folder styles */
-.folder {
-    display: flex;
-    align-items: center;
-    padding: 15px;
-    background-color: white;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s;
-    margin-bottom: 10px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.folder:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-}
-
-.folder-icon {
-    font-size: 24px;
-    margin-right: 15px;
-}
-
-.folder-name {
-    font-size: 16px;
-    color: #333;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 200px;
-}
-
 /* Tab styles */
 .tab-container {
     display: flex;
@@ -556,171 +399,177 @@ hr {
 }
 
 /* Responsive Design */
-@media screen and (max-width: 768px) {
+@media (max-width: 1200px) {
     .main-container {
-        padding: 10px;
+        padding: 16px;
     }
 
-    .folder {
-        padding: 10px;
-        margin-bottom: 8px;
+    .header h1 {
+        font-size: 2rem;
     }
 
-    .folder-icon {
-        font-size: 20px;
-    }
-
-    .folder-name {
-        font-size: 14px;
-        max-width: 150px;
-    }
-
-    .tab {
-        padding: 8px;
-        font-size: 14px;
+    .folder-container {
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 16px;
     }
 }
 
-@media screen and (max-width: 480px) {
+@media (max-width: 768px) {
     .main-container {
-        padding: 5px;
+        padding: 12px;
     }
 
-    .folder {
-        padding: 8px;
-        margin-bottom: 5px;
+    .header h1 {
+        font-size: 1.75rem;
+        padding: 15px 0;
     }
 
-    .folder-icon {
-        font-size: 18px;
-    }
-
-    .folder-name {
-        font-size: 13px;
-        max-width: 120px;
-    }
-
-    .tab-container {
-        padding: 3px;
-    }
-
-    .tab {
-        padding: 6px;
-        font-size: 13px;
-    }
-}
-
-/* Tooltip styles */
-.folder-name {
-    position: relative;
-}
-
-.folder-name:hover::after {
-    content: attr(title);
-    position: absolute;
-    bottom: -30px;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: rgba(0, 0, 0, 0.8);
-    color: white;
-    padding: 5px 10px;
-    border-radius: 4px;
-    font-size: 12px;
-    white-space: normal;
-    max-width: 200px;
-    z-index: 1000;
-    pointer-events: none;
-}
-
-/* Back button styles */
-.back-btn {
-    margin-bottom: 20px;
-    padding: 8px 16px;
-    background-color: #6c757d;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-}
-
-.back-btn:hover {
-    background-color: #5a6268;
-}
-
-/* Authentication Styles */
-.auth-container {
-    max-width: 400px;
-    margin: 50px auto;
-    padding: 20px;
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.auth-form {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
-
-.form-group label {
-    font-weight: 500;
-    color: #555;
-}
-
-.form-group input {
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 16px;
-}
-
-.auth-btn {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.2s;
-}
-
-.auth-btn:hover {
-    background-color: #0056b3;
-}
-
-.error-message {
-    color: #dc3545;
-    font-size: 14px;
-    margin-top: 5px;
-}
-
-/* Responsive auth styles */
-@media screen and (max-width: 480px) {
-    .auth-container {
-        margin: 20px;
-        padding: 15px;
-    }
-
-    .auth-form {
+    .toggle-container {
+        flex-wrap: wrap;
         gap: 10px;
     }
 
-    .form-group input {
-        padding: 6px 10px;
-        font-size: 14px;
+    .toggle-btn {
+        padding: 8px 16px;
+        font-size: 0.9rem;
     }
 
-    .auth-btn {
+    .folder-container {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 12px;
+        padding: 12px 0;
+    }
+
+    .folder {
+        padding: 15px;
+    }
+
+    .folder-icon {
+        font-size: 28px;
+    }
+
+    .folder-name {
+        font-size: 0.9rem;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        font-size: 0.9rem;
+        padding: 6px 10px;
+    }
+
+    .submit-btn {
         padding: 8px 16px;
-        font-size: 14px;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .main-container {
+        padding: 10px;
+    }
+
+    .header h1 {
+        font-size: 1.5rem;
+        padding: 12px 0;
+    }
+
+    .toggle-container {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .toggle-btn {
+        width: 100%;
+        padding: 10px;
+    }
+
+    .folder-container {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 10px;
+        padding: 10px 0;
+    }
+
+    .folder {
+        padding: 12px;
+    }
+
+    .folder-icon {
+        font-size: 24px;
+    }
+
+    .folder-name {
+        font-size: 0.85rem;
+    }
+
+    .form-group label {
+        font-size: 0.9rem;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        font-size: 0.85rem;
+        padding: 5px 8px;
+    }
+
+    .submit-btn {
+        width: 100%;
+        padding: 10px;
+        font-size: 0.9rem;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .main-container {
+        background: #111827;
+    }
+
+    .header h1 {
+        color: #f3f4f6;
+    }
+
+    .toggle-btn {
+        background: #1f2937;
+        color: #f3f4f6;
+    }
+
+    .toggle-btn.active {
+        background: #4CAF50;
+        color: white;
+    }
+
+    .folder {
+        background: #1f2937;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    .folder:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    }
+
+    .folder-name {
+        color: #f3f4f6;
+    }
+
+    .form-group label {
+        color: #f3f4f6;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        background: #1f2937;
+        border-color: #374151;
+        color: #f3f4f6;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+        border-color: #4CAF50;
+        outline: none;
     }
 }
