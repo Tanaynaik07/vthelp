@@ -12,9 +12,33 @@ const flash = require("connect-flash");
 const User = require("./models/User");
 const rateLimit = require('express-rate-limit');
 const path = require('path');
+const helmet = require('helmet');
+const hpp = require('hpp');
+const mongoSanitize = require('express-mongo-sanitize');
+const xss = require('xss-clean');
 require("dotenv").config();
 
 const app = express();
+
+// Security Middleware
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            scriptSrc: ["'self'", "'unsafe-inline'"],
+            styleSrc: ["'self'", "'unsafe-inline'"],
+            imgSrc: ["'self'", "data:", "https:", "blob:"],
+            connectSrc: ["'self'", "https://*.cloudinary.com"],
+            fontSrc: ["'self'"],
+            objectSrc: ["'none'"],
+            mediaSrc: ["'self'"],
+            frameSrc: ["'none'"]
+        }
+    }
+}));
+app.use(hpp());
+app.use(mongoSanitize());
+app.use(xss());
 
 // Rate limiting for login attempts
 const loginLimiter = rateLimit({
@@ -24,10 +48,12 @@ const loginLimiter = rateLimit({
 });
 
 // Basic middleware
-app.use(express.json());
+app.use(express.json({ limit: '10kb' }));
 app.use(express.static("public"));
 app.set("view engine", "ejs");
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
+
+// CORS configuration
 app.use(cors({
     origin: process.env.NODE_ENV === 'production' 
         ? ['https://vthelp.onrender.com', 'https://www.vthelp.onrender.com']
@@ -40,7 +66,7 @@ app.use(cors({
 // Session configuration
 app.use(session({
     secret: process.env.SESSION_SECRET,
-    resave: true,
+    resave: false,
     saveUninitialized: false,
     cookie: {
         secure: process.env.NODE_ENV === 'production',
@@ -50,7 +76,9 @@ app.use(session({
         domain: process.env.NODE_ENV === 'production' ? '.onrender.com' : undefined
     },
     name: 'sessionId',
-    proxy: true
+    proxy: true,
+    rolling: true,
+    store: new session.MemoryStore() // For development. In production, use MongoDB or Redis
 }));
 
 // Add trust proxy setting
@@ -60,6 +88,7 @@ app.set('trust proxy', 1);
 app.use(flash());
 app.use((req, res, next) => {
     res.locals.error = req.flash('error');
+    res.locals.success = req.flash('success');
     next();
 });
 
@@ -67,6 +96,7 @@ app.use((req, res, next) => {
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Passport serialization
 passport.serializeUser((user, done) => {
     done(null, user.id);
 });
@@ -74,6 +104,9 @@ passport.serializeUser((user, done) => {
 passport.deserializeUser(async (id, done) => {
     try {
         const user = await User.findById(id);
+        if (!user) {
+            return done(null, false);
+        }
         done(null, user);
     } catch (err) {
         done(err);
@@ -91,17 +124,30 @@ passport.use(new LocalStrategy(async (username, password, done) => {
         if (!isMatch) {
             return done(null, false, { message: 'Incorrect password.' });
         }
+        // Update last login
+        user.lastLogin = new Date();
+        await user.save();
         return done(null, user);
     } catch (err) {
         return done(err);
     }
 }));
 
-// Authentication middleware
+// Session check middleware
+const checkSession = (req, res, next) => {
+    if (!req.session) {
+        return res.status(500).json({ error: 'Session not available' });
+    }
+    next();
+};
+
+// Authentication middleware with session check
 const isAuthenticated = (req, res, next) => {
     if (req.isAuthenticated()) {
         return next();
     }
+    // Store the original URL for redirect after login
+    req.session.returnTo = req.originalUrl;
     // If it's an API request, return JSON response
     if (req.headers['content-type'] === 'application/json') {
         return res.status(401).json({ error: 'Authentication required' });
@@ -572,15 +618,27 @@ app.get('/login', (req, res) => {
     });
 });
 
-app.post('/login', loginLimiter, passport.authenticate('local', {
-    successRedirect: '/',
+app.post('/login', loginLimiter, checkSession, passport.authenticate('local', {
     failureRedirect: '/login',
     failureFlash: true
-}));
+}), (req, res) => {
+    const returnTo = req.session.returnTo || '/';
+    delete req.session.returnTo;
+    res.redirect(returnTo);
+});
 
 app.get('/logout', (req, res) => {
-    req.logout(() => {
-        res.redirect('/');
+    req.logout((err) => {
+        if (err) {
+            console.error('Logout error:', err);
+        }
+        req.session.destroy((err) => {
+            if (err) {
+                console.error('Session destruction error:', err);
+            }
+            res.clearCookie('sessionId');
+            res.redirect('/');
+        });
     });
 });
 
